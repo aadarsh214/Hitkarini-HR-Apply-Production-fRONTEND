@@ -27,7 +27,7 @@ const Dashboard = () => {
   const [applications, setApplications] = useState([])
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(10)
+  const [limit, setLimit] = useState(50)
   const [totalPages, setTotalPages] = useState(1)
 
   const [filters, setFilters] = useState({
