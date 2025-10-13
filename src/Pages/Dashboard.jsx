@@ -27,7 +27,7 @@ const Dashboard = () => {
   const [applications, setApplications] = useState([])
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(50)
+  const [limit, setLimit] = useState(10)
   const [totalPages, setTotalPages] = useState(1)
 
   const [filters, setFilters] = useState({
@@ -137,6 +137,68 @@ const Dashboard = () => {
     }
   }
 
+  const downloadExcelAll = async () => {
+    try {
+      setLoading(true)
+      const serverFilters = {
+        page, // server ignores pagination for export but harmless
+        limit,
+        applicationType: filters.applicationType || undefined,
+        applyingFor: filters.applyingFor || undefined,
+        gender: filters.gender || undefined,
+        maritalStatus: filters.maritalStatus || undefined,
+        areaOfInterest: filters.areaOfInterest || undefined,
+        subjectOrDepartment: filters.subjectOrDepartment || undefined,
+        minExperience: filters.minExperience || undefined,
+        maxExperience: filters.maxExperience || undefined,
+        q: filters.nameOrEmail || undefined,
+      }
+      const params = new URLSearchParams(
+        Object.fromEntries(Object.entries(serverFilters).filter(([k, v]) => v !== undefined && v !== "")),
+      ).toString()
+      const res = await axios.get(`${API_BASE}/export/excel?${params}&t=${Date.now()}` , { responseType: 'blob' })
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }))
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `applications_${Date.now()}.xlsx`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      toast.success('Excel downloaded')
+    } catch (e) {
+      console.error(e)
+      toast.error('Failed to export Excel')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const downloadExcelSelected = async () => {
+    try {
+      const ids = Array.from(selectedIds)
+      if (ids.length === 0) {
+        toast.error('Please select at least one application')
+        return
+      }
+      setLoading(true)
+      const qs = new URLSearchParams({ ids: ids.join(',') }).toString()
+      const res = await axios.get(`${API_BASE}/export/excel/selected?${qs}&t=${Date.now()}`, { responseType: 'blob' })
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }))
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `applications_selected_${Date.now()}.xlsx`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      toast.success('Excel (selected) downloaded')
+    } catch (e) {
+      console.error(e)
+      toast.error('Failed to export selected Excel')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     fetchCounts()
   }, [])
@@ -215,7 +277,7 @@ const Dashboard = () => {
       }
 
       // application type (school/college)
-      if (filters.applicationType && (it.applicationType || "").toLowerCase() !== filters.applicationType.toLowerCase()) {
+      if (filters.applicationType && (it.applicationType || "") !== filters.applicationType) {
         return false
       }
 
@@ -263,7 +325,8 @@ const Dashboard = () => {
   const downloadPDF = async (id) => {
     try {
       setLoading(true)
-      const res = await axios.get(`${API_BASE}/application/${id}`, { responseType: "blob" })
+      // Add a timestamp to the URL to bypass browser cache
+      const res = await axios.get(`${API_BASE}/application/${id}?t=${Date.now()}`, { responseType: "blob" })
       const url = window.URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }))
       const a = document.createElement("a")
       a.href = url
@@ -491,6 +554,19 @@ const Dashboard = () => {
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-600 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 flex items-center justify-between gap-3">
                 <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Applications</h2>
                 <div className="flex items-center gap-3">
+                  <button
+                    onClick={downloadExcelAll}
+                    className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-medium hover:from-emerald-600 hover:to-emerald-700"
+                  >
+                    <FaDownload className="inline mr-1 text-xs" /> Export (All/Filtered)
+                  </button>
+                  <button
+                    onClick={downloadExcelSelected}
+                    disabled={selectedIds.size === 0}
+                    className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-green-500 to-green-600 text-white text-sm font-medium disabled:opacity-50"
+                  >
+                    <FaDownload className="inline mr-1 text-xs" /> Export Selected ({selectedIds.size})
+                  </button>
                   <button
                     onClick={openBulkEmailModal}
                     disabled={selectedIds.size === 0}
