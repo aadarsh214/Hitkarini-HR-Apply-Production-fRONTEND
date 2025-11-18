@@ -476,6 +476,9 @@ export default function ApplicationForm() {
         }
       })
 
+
+
+      
       // Post
       const res = await axios.post("https://hitkarini-hr-wksup.ondigitalocean.app/api/addApplication", fd, {
         headers: { "Content-Type": "multipart/form-data" },
