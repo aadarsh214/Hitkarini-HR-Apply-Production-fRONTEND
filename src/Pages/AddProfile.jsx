@@ -40,6 +40,19 @@ const steps = [
 
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]
 
+const SALARY_RANGES = [
+  { value: "", label: "Select expected salary" },
+  { value: "0-300000", label: "₹0 - ₹3,00,000" },
+  { value: "300001-600000", label: "₹3,00,001 - ₹6,00,000" },
+  { value: "600001-900000", label: "₹6,00,001 - ₹9,00,000" },
+  { value: "900001-1200000", label: "₹9,00,001 - ₹12,00,000" },
+  { value: "1200001-1500000", label: "₹12,00,001 - ₹15,00,000" },
+  { value: "1500001-2000000", label: "₹15,00,001 - ₹20,00,000" },
+  { value: "2000001-2500000", label: "₹20,00,001 - ₹25,00,000" },
+  { value: "2500001-3000000", label: "₹25,00,001 - ₹30,00,000" },
+  { value: "3000001+", label: "₹30,00,001 & above" },
+]
+
 // Add this constant for religions
 const RELIGIONS = [
   "Hindu",
@@ -1199,6 +1212,29 @@ export default function ApplicationForm() {
                             value={job.reasonOfLeaving}
                             onChange={(v) => setNestedArrayItem("workExperience", idx, "reasonOfLeaving", v)}
                           />
+                          <div className="space-y-1">
+                            <label className="block text-sm font-medium text-gray-700">
+                              Expected Salary (per annum)
+                            </label>
+                            <select
+                              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                              value={job.expectedSalary || ""}
+                              onChange={(e) => 
+                                setNestedArrayItem(
+                                  "workExperience", 
+                                  idx, 
+                                  "expectedSalary", 
+                                  e.target.value
+                                )
+                              }
+                            >
+                              {SALARY_RANGES.map((range) => (
+                                <option key={range.value} value={range.value}>
+                                  {range.label}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -1469,6 +1505,16 @@ export default function ApplicationForm() {
                           <div className="font-medium">
                             {w.designation || "-"} @ {w.institutionName || "-"}
                           </div>
+                          <div className="mt-2">
+                            {w.startDate} to {w.endDate || 'Present'}
+                          </div>
+                          {w.expectedSalary && (
+                            <div className="mt-1">
+                              <span className="font-medium">Expected Salary:</span> {
+                                SALARY_RANGES.find(r => r.value === w.expectedSalary)?.label || w.expectedSalary
+                              }
+                            </div>
+                          )}
                           <div className="text-sm text-gray-700">
                             {w.startDate || "-"} → {w.endDate || "Present"} • ₹{w.netMonthlySalary || "-"}
                           </div>
