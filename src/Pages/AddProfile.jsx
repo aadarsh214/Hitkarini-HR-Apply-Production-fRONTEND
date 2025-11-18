@@ -40,6 +40,17 @@ const steps = [
 
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]
 
+// Salary ranges matching backend model
+const SALARY_RANGES = [
+  { value: "Up to 3 LPA", label: "Up to 3 LPA" },
+  { value: "4 - 7 LPA", label: "4 - 7 LPA" },
+  { value: "8 - 11 LPA", label: "8 - 11 LPA" },
+  { value: "12 - 15 LPA", label: "12 - 15 LPA" },
+  { value: "16 - 20 LPA", label: "16 - 20 LPA" },
+  { value: "21 - 25 LPA", label: "21 - 25 LPA" },
+  { value: "25 LPA Above", label: "25 LPA & Above" }
+]
+
 // Add this constant for religions
 const RELIGIONS = [
   "Hindu",
@@ -1221,43 +1232,19 @@ export default function ApplicationForm() {
               )}
 
               <div className="mt-4">
-                {form.applicationType === "school" ? (
-                  <Input
-                    as="select"
-                    label="Expected Salary"
-                    value={form.expectedSalary}
-                    onChange={(v) => setField("expectedSalary", v)}
-                  >
-                    <option value="">Select expected salary</option>
-                    <option value="0-50000">₹0 - ₹50,000</option>
-                    <option value="50000-100000">₹50,000 - ₹1,00,000</option>
-                    <option value="100000-200000">₹1,00,000 - ₹2,00,000</option>
-                    <option value="200000-300000">₹2,00,000 - ₹3,00,000</option>
-                    <option value="300000-400000">₹3,00,000 - ₹4,00,000</option>
-                    <option value="400000-500000">₹4,00,000 - ₹5,00,000</option>
-                    <option value="500000-600000">₹5,00,000 - ₹6,00,000</option>
-                    <option value="600000-700000">₹6,00,000 - ₹7,00,000</option>
-                    <option value="700000-800000">₹7,00,000 - ₹8,00,000</option>
-                    <option value="800000-900000">₹8,00,000 - ₹9,00,000</option>
-                    <option value="900000-1000000">₹9,00,000 - ₹10,00,000</option>
-                  </Input>
-                ) : (
-                  <Input
-                    as="select"
-                    label="Expected Salary"
-                    value={form.expectedSalary}
-                    onChange={(v) => setField("expectedSalary", v)}
-                  >
-                    <option value="">Select expected salary</option>
-                    <option value="Up to 3 LPA">Up to 3 LPA</option>
-                    <option value="4 - 7 LPA">4 - 7 LPA</option>
-                    <option value="8 - 11 LPA">8 - 11 LPA</option>
-                    <option value="12 - 15 LPA">12 - 15 LPA</option>
-                    <option value="16 - 20 LPA">16 - 20 LPA</option>
-                    <option value="21 - 25 LPA">21 - 25 LPA</option>
-                    <option value="25 LPA Above">25 LPA Above</option>
-                  </Input>
-                )}
+                <Input
+                  as="select"
+                  label="Expected Salary"
+                  value={form.expectedSalary}
+                  onChange={(v) => setField("expectedSalary", v)}
+                >
+                  <option value="">Select expected salary</option>
+                  {SALARY_RANGES.map((range) => (
+                    <option key={range.value} value={range.value}>
+                      {range.label}
+                    </option>
+                  ))}
+                </Input>
               </div>
             </section>
           )}
